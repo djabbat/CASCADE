@@ -1,0 +1,32 @@
+{
+    "creators": [
+        {
+            "affiliation": "Georgia Longevity Alliance",
+            "name": "Tqemaladze, Jaba",
+            "orcid": "0000-0001-8651-7243"
+        }
+    ],
+    "description": "CASCADE (Counter-based Asymmetric Stem-Cell Aging: Division Counters & Entropy Export) — a quantitative model of organismal aging: asymmetric division exports entropy/damage, division counters (centriole, telomeres, mtDNA, proteostasis, epigenetic mitotic clock) accumulate, and self-renewal declines with the organismal damage load. Formally verified mathematical core in Lean 4 + Mathlib (0 errors) and a stochastic multi-counter simulation in Rust.",
+    "keywords": [
+        "aging",
+        "organismal aging",
+        "stem cells",
+        "multi-counter",
+        "division counter",
+        "centriole",
+        "telomere",
+        "mitochondrial DNA",
+        "proteostasis",
+        "self-renewal",
+        "formal verification",
+        "lean",
+        "mathlib",
+        "rust",
+        "computational biology",
+        "longevity"
+    ],
+    "license": "Apache-2.0",
+    "title": "CASCADE: Counter-based Asymmetric Stem-Cell Aging — Division Counters & Entropy Export (organismal-aging model; Lean 4 + Rust)",
+    "upload_type": "software",
+    "access_right": "open"
+}

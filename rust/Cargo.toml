@@ -1,0 +1,21 @@
+[package]
+name = "centriole_model"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "counter_model"
+path = "src/main.rs"
+
+[[bin]]
+name = "pubmed_verify"
+path = "src/bin/pubmed_verify.rs"
+
+[[bin]]
+name = "audit_cycles"
+path = "src/bin/audit_cycles.rs"
+
+[dependencies]
+ureq = "2"
+serde_json = "1"
+rand = "0.8"

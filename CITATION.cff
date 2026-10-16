@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this model in your work, please cite it."
+authors:
+  - family-names: Tqemaladze
+    given-names: Jaba
+    orcid: "https://orcid.org/0000-0001-8651-7243"
+title: "CASCADE: Counter-based Asymmetric Stem-Cell Aging — Division Counters & Entropy Export (organismal-aging model; Lean 4 + Rust)"
+version: 0.4.0
+date-released: 2026-10-16
+keywords:
+  - organismal aging
+  - stem-cell-centric multi-counter theory
+  - asymmetric division
+  - division counters
+  - centriole
+  - telomere
+  - mitochondrial DNA
+  - proteostasis
+  - self-renewal decline
+  - formal verification
+  - Lean 4
+  - mathlib
+  - Rust
+  - mathematical model
+license: Apache-2.0
