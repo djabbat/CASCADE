@@ -49,6 +49,9 @@ lean CASCADE.lean          # ~1 min, 0 errors
 lean CASCADE_Core.lean
 ```
 
+## DOI
+**Zenodo: https://doi.org/10.5281/zenodo.23417047** (v0.4.0) · concept DOI 10.5281/zenodo.23417046
+
 ## Citation
 See `CITATION.cff`. Author: Jaba Tqemaladze (ORCID 0000-0001-8651-7243).
 License: Apache-2.0.
