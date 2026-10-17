@@ -6,6 +6,7 @@ authors:
     orcid: "https://orcid.org/0000-0001-8651-7243"
 title: "CASCADE: Counter-based Asymmetric Stem-Cell Aging — Division Counters & Entropy Export (organismal-aging model; Lean 4 + Rust)"
 version: 0.5.0
+doi: 10.5281/zenodo.23428758
 date-released: 2026-10-17
 keywords:
   - organismal aging
