@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CASCADE · Counter-based Asymmetric Stem-Cell Aging (interactive model)</title>
+<meta name="description" content="CASCADE — organismal-aging model: 5 division counters, entropy export (asymmetric segregation), cross-counter synergy, context switches (telomerase / O2). Interactive simulator + Lean-verified core + repositories.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧬%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://longevity.ge/assets/unified.css">
+<style>
+  h2 { border-bottom-color: #0d9488; }
+  a { color: #0d9488; }
+  html[data-theme="dark"] a { color: #2dd4bf; }
+  .pill { background: #0d9488; color: #fff; }
+  .controls { display:grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap:10px; margin:14px 0; }
+  .ctl { background: var(--surface, #f6f6f6); border:1px solid var(--border,#ddd); border-radius:8px; padding:8px 10px; }
+  html[data-theme="dark"] .ctl { background:#1c1f26; border-color:#333; }
+  .ctl label { font-size:12px; display:flex; justify-content:space-between; }
+  .ctl label b { color:#0d9488; }
+  .ctl input[type=range] { width:100%; margin:4px 0; }
+  .ctl input[type=checkbox] { width:auto; }
+  .result { display:flex; gap:16px; flex-wrap:wrap; align-items:center; margin:10px 0; }
+  .big { font-size:2.4rem; font-weight:700; color:#0d9488; }
+  .cause { font-weight:600; }
+  .bars { width:100%; margin:8px 0; }
+  .barrow { display:flex; align-items:center; gap:8px; margin:3px 0; }
+  .barlabel { width:110px; font-size:12px; text-align:right; }
+  .bar { height:14px; border-radius:3px; background:#0d9488; min-width:2px; }
+  .bar.off { background:#999; }
+  code { background:var(--surface,#f0f0f0); padding:1px 4px; border-radius:4px; }
+  html[data-theme="dark"] code { background:#222; }
+  table.pts { border-collapse:collapse; width:100%; font-size:13px; }
+  table.pts td, table.pts th { border:1px solid var(--border,#ddd); padding:5px 8px; text-align:left; }
+</style>
+<script>(function(){var t=localStorage.getItem("theme");if(t==="dark")document.documentElement.setAttribute("data-theme","dark");})();</script>
+<script src="https://longevity.ge/eco-inject.js?v=62" defer></script>
+</head>
+<body>
+
+<section class="lc-sub-hero">
+  <div class="lc-sub-hero-inner">
+    <div class="pill">CASCADE</div>
+    <h1>Counter-based Asymmetric Stem-Cell Aging: Division Counters &amp; Entropy Export</h1>
+    <p>An organismal-aging model for <strong>humans</strong>. Entropy export (asymmetric segregation of damaged molecules between daughter cells) is the foundation; 5 division counters (centriole, telomere, mtDNA, proteostasis, epigenetic) with cross-counter synergy; context switches for telomerase and O₂. Core formally verified in Lean 4; audit 100/100.</p>
+  </div>
+</section>
+
+<div class="container">
+
+<div class="page-header">
+  <div class="badges">
+    <span class="badge green">DOI 10.5281/zenodo.23417047</span>
+    <span class="badge green">GitHub: djabbat/Services → publications/CASCADE</span>
+    <span class="badge amber">Lean-verified core · audit 100/100</span>
+  </div>
+</div>
+
+<div class="toc">
+  <strong>On this page:</strong>
+  <a href="#sim">Interactive simulator</a>
+  <a href="#form">Formalism</a>
+  <a href="#counters">Counters</a>
+  <a href="#entropy">Entropy export</a>
+  <a href="#context">Context</a>
+  <a href="#sections">Model sections</a>
+  <a href="#repos">Repositories</a>
+</div>
+
+<h2 id="sim">Interactive simulator (runs in your browser, no server)</h2>
+<p>Adjust the parameters below; the model computes the first counter to fire (<code>n*</code>, divisions to replicative exhaustion) from the same deterministic core as the Rust model. Toggle human contexts: somatic (telomerase OFF, 21% O₂), stem cells (telomerase ON, physioxia), hyperoxia.</p>
+
+<div class="controls" id="ctrls"></div>
+
+<div class="result">
+  <div><span class="big" id="nstar">—</span> <span class="cause" id="cause"></span></div>
+  <div id="percounter" style="font-size:13px"></div>
+</div>
+<div class="bars" id="bars"></div>
+
+<p style="font-size:12px;opacity:.9">Presets (human contexts):
+  <button onclick="preset('somatic')">Somatic · 21% O₂</button>
+  <button onclick="preset('physio_somatic')">Physioxia somatic</button>
+  <button onclick="preset('stem')">Stem · telomerase ON</button>
+  <button onclick="preset('stem_pure')">Stem · pure counters (no coupling)</button>
+  <button onclick="preset('hyper')">Hyperoxia · 40% O₂</button>
+  <button onclick="preset('default')">Reset</button>
+</p>
+<table class="pts" style="margin-top:6px">
+<tr><th>Preset</th><th>telomerase</th><th>o2</th><th>couplings</th><th>expected first counter</th><th>n*</th></tr>
+<tr><td>Somatic · 21% O₂</td><td>OFF</td><td>1.0</td><td>on</td><td>telomere</td><td>~35</td></tr>
+<tr><td>Physioxia somatic (tissue 1–5% O₂)</td><td>OFF</td><td>0.0</td><td>on</td><td>proteostasis (telomere silent, no ROS)</td><td>~41</td></tr>
+<tr><td>Stem · telomerase ON, physioxia</td><td>ON</td><td>0.0</td><td>on</td><td>proteostasis</td><td>~41</td></tr>
+<tr><td>Stem · pure counters (no coupling)</td><td>ON</td><td>0.0</td><td>off, counter-only</td><td>mtDNA (+ centriole close)</td><td>~51</td></tr>
+<tr><td>Hyperoxia · 40% O₂ (max ROS, c_tm=5.5)</td><td>OFF</td><td>1.0</td><td>on</td><td>telomere (fastest erosion)</td><td>~32</td></tr>
+</table>
+
+<h2 id="form">Formalism</h2>
+<p>Five division counters run in parallel; the <strong>first to pass its threshold</strong> sets replicative capacity (any-of exit):</p>
+<div class="formula block">τ_eff = (telomerase ON) ? 0 : τ + c_tm·m_load·o2</div>
+<div class="formula block">M(n+1) = M(n) + d_m + c_mt·tel_fail + c_mp·proto_load</div>
+<div class="formula block">P(n+1) = P(n) + d_p − (r_p − c_pe·epi_load)·P(n)</div>
+<div class="formula block">E(n+1) = E(n) + e_drift + c_et·tel_fail</div>
+<p>Couplings (all ≥ 0) encode literature-grounded interactions (ROS→telomere, telomere→mtDNA p53/PGC-1α, telomere→epigenetic, epigenetic→proteostasis, proteostasis→mtDNA/mitophagy). Non-negative couplings can only <em>accelerate</em> exit (Lean: <code>firstCross_le_of_dominated</code>).</p>
+
+<h2 id="counters">The five division counters</h2>
+<table class="pts">
+<tr><th>Counter</th><th>Accumulation per division</th><th>Exit</th><th>Default n*</th></tr>
+<tr><td>1 · Centriole (non-dilutable)</td><td>d_c = 0.6</td><td>S_c &gt; k_c = 31</td><td>~52</td></tr>
+<tr><td>2 · Telomere</td><td>−τ_eff (τ=1.0; telomerase ON → 0)</td><td>T &lt; t_min = 10</td><td>~91 (OFF) / ∞ (ON)</td></tr>
+<tr><td>3 · mtDNA</td><td>d_m = 0.5 (+couplings)</td><td>M &gt; k_m = 25</td><td>~51</td></tr>
+<tr><td>4 · Proteostasis (reservoir)</td><td>d_p = 0.4, turnover r_p = 0.05</td><td>P &gt; k_p = 8</td><td>never (knife-edge)</td></tr>
+<tr><td>5 · Epigenetic (mitotic)</td><td>e_drift = 0.4</td><td>E &gt; k_e = 25</td><td>~63</td></tr>
+</table>
+
+<h2 id="entropy">Entropy export — the foundation</h2>
+<p>Asymmetric segregation of old/damaged molecules between daughter cells <em>is</em> the entropy export: the retained “young” lineage <code>R(n+1) = (1−a)·R(n) + d</code> stays bounded (equilibrium <code>d/a</code>) while <code>a &gt; 0</code>; the sibling is the entropy sink. At <code>a = 0</code> (no export) the retained lineage becomes the <strong>unbounded linear aging counter</strong>. The non-dilutable centriole cannot be exported — it is the universal counter even in telomerase-positive stem cells.</p>
+
+<h2 id="context">Context switches (human)</h2>
+<table class="pts">
+<tr><th>Context</th><th>telomerase_on</th><th>o2</th><th>First counter</th><th>n*</th></tr>
+<tr><td>Somatic (culture 21% O₂)</td><td>OFF</td><td>1.0</td><td>telomere</td><td>~35</td></tr>
+<tr><td>Stem cells / physioxia</td><td>ON</td><td>0.0</td><td>proteostasis (coupled) / mtDNA+centriole (pure)</td><td>~41 / ~51</td></tr>
+<tr><td>Hyperoxia (40% O₂)</td><td>OFF</td><td>1.0 (c_tm full)</td><td>telomere</td><td>~35</td></tr>
+</table>
+
+<h2 id="sections">Model sections (Rust <code>counter_model</code>)</h2>
+<p>A–O: organismal load &amp; renewal decline · multi-counter any-of · Regime B (post-mitotic) · germline reset · Monte-Carlo · Armitage–Doll cancer · HSC pool · f(S) falsifiable prediction · synergy · entropy export / no-export modes · context switch · stochastic/sensitivity/UQ · non-dilutable centriole · branching population.</p>
+
+<h2 id="repos">Repositories &amp; verification</h2>
+<ul>
+<li><strong>Code:</strong> <a href="https://github.com/djabbat/Services">github.com/djabbat/Services</a> → <code>publications/CASCADE/</code> (Rust model + Lean core + audit + docs)</li>
+<li><strong>DOI:</strong> <a href="https://doi.org/10.5281/zenodo.23417047">10.5281/zenodo.23417047</a> (v0.4.0)</li>
+<li><strong>Lean 4 + Mathlib:</strong> <code>CASCADE.lean</code>, <code>CASCADE_Core.lean</code> — 8 sections, 0 errors (closed forms, monotonicity, exit times, segregation, feedback, synergy)</li>
+<li><strong>Audit:</strong> 5000 progressive cycles, 34 checks at full depth, 167,920 checks, 0 holes (100/100); autofix stress 5→0</li>
+<li><strong>Meta-framework:</strong> <a href="https://mcoa.longevity.ge/">MCARA</a> — CASCADE is a concrete instantiation of the MCARA multi-counter architecture</li>
+</ul>
+
+</div>
+
+<script>
+// ---------- CASCADE deterministic core (JS port of rust run(); jitter=0) ----------
+const BASE = {d_c:0.6,k_c:31,f0:0.9,k:0.1,f_min:0.05,t0:100,tau:1,t_min:10,d_m:0.5,k_m:25,d_p:0.4,r_p:0.05,k_p:8,e_drift:0.4,k_e:25,c_tm:4.5,c_mt:0.10,c_et:0.10,c_pe:0.02,c_mp:0.05,telomerase_on:false,o2:1.0};
+
+function runModel(P){
+  let sc=0, tl=P.t0, md=0, pd=0, ed=0;
+  for(let n=1;n<=400;n++){
+    let f=P.f0*Math.exp(-P.k*sc);
+    if(f<P.f_min) return {n,cause:"export collapse"};
+    let m_load=Math.min(md/P.k_m,1), tel_fail=Math.max(1-tl/P.t0,0), epi=Math.min(ed/P.k_e,1), proto=Math.min(pd/P.k_p,1);
+    sc+=P.d_c;
+    let tau_eff=P.telomerase_on?0:(P.tau+P.c_tm*m_load*P.o2);
+    tl=Math.max(tl-tau_eff,0);
+    md+=P.d_m+P.c_mt*tel_fail+P.c_mp*proto;
+    let rp=Math.max(P.r_p-P.c_pe*epi,0);
+    pd=pd+P.d_p-rp*pd;
+    ed+=P.e_drift+P.c_et*tel_fail;
+    if(sc>P.k_c) return {n,cause:"centriole"};
+    if(tl<P.t_min) return {n,cause:"telomere"};
+    if(md>P.k_m) return {n,cause:"mtDNA"};
+    if(pd>P.k_p) return {n,cause:"proteostasis"};
+    if(ed>P.k_e) return {n,cause:"epigenetic"};
+  }
+  return {n:null,cause:"none"};
+}
+// standalone exits (closed forms)
+function standalone(P){
+  return [
+    {name:"centriole", n:Math.floor(P.k_c/P.d_c)+1},
+    {name:"telomere", n:P.telomerase_on?Infinity:Math.floor((P.t0-P.t_min)/Math.max(P.tau,1e-9))+1},
+    {name:"mtDNA", n:Math.floor(P.k_m/P.d_m)+1},
+    {name:"epigenetic", n:Math.floor(P.k_e/P.e_drift)+1},
+  ];
+}
+// ---------- UI ----------
+const FIELDS=[
+  ["d_c",0.1,1.5,0.05],["k_c",10,120,1],["tau",0.2,3,0.1],["t0",50,200,1],["t_min",1,50,1],
+  ["d_m",0.1,1.5,0.05],["k_m",10,60,1],["d_p",0.1,1.0,0.05],["r_p",0.01,0.15,0.005],["k_p",2,20,0.5],
+  ["e_drift",0.1,1.0,0.05],["k_e",10,60,1],["c_tm",0,10,0.1],["c_mt",0,1,0.05],["c_et",0,1,0.05],
+  ["c_pe",0,0.1,0.005],["c_mp",0,0.5,0.01],["o2",0,1,0.05],
+];
+let P={...BASE};
+const TOGGLES=[["telomerase_on","telomerase ON (stem cells)"],["f_min_toggle","disable export collapse (counter-only)"]];
+const ctrls=document.getElementById('ctrls');
+FIELDS.forEach(([k,lo,hi,st])=>{
+  const d=document.createElement('div'); d.className='ctl';
+  d.innerHTML=`<label><span>${k}</span><b id="v_${k}">${P[k]}</b></label>`;
+  const inp=document.createElement('input'); inp.type='range'; inp.min=lo; inp.max=hi; inp.step=st; inp.value=P[k]; inp.id='sl_'+k;
+  inp.oninput=()=>{P[k]=parseFloat(inp.value); document.getElementById('v_'+k).textContent=(+inp.value).toFixed(3); compute();};
+  d.appendChild(inp); ctrls.appendChild(d);
+});
+TOGGLES.forEach(([k,label])=>{
+  const d=document.createElement('div'); d.className='ctl';
+  const inp=document.createElement('input'); inp.type='checkbox'; inp.id='tg_'+k;
+  inp.checked=(k==='telomerase_on')?P.telomerase_on:false;
+  inp.onchange=()=>{ if(k==='telomerase_on'){P.telomerase_on=inp.checked;} else {P.f_min=inp.checked?0:BASE.f_min;} compute(); };
+  d.appendChild(inp); d.appendChild(document.createTextNode(' '+label)); ctrls.appendChild(d);
+});
+function preset(name){
+  if(name==='somatic'){P={...BASE};P.f_min=BASE.f_min;P.telomerase_on=false;P.o2=1.0;P.c_tm=4.5;}
+  if(name==='physio_somatic'){P={...BASE};P.f_min=BASE.f_min;P.telomerase_on=false;P.o2=0.0;P.c_tm=4.5;}
+  if(name==='stem'){P={...BASE};P.f_min=BASE.f_min;P.telomerase_on=true;P.o2=0.0;P.c_tm=4.5;}
+  if(name==='stem_pure'){P={...BASE};P.telomerase_on=true;P.o2=0.0;P.c_tm=0;P.c_mt=0;P.c_et=0;P.c_pe=0;P.c_mp=0;P.f_min=0;}
+  if(name==='hyper'){P={...BASE};P.f_min=BASE.f_min;P.telomerase_on=false;P.o2=1.0;P.c_tm=5.5;}
+  if(name==='default'){P={...BASE};P.f_min=BASE.f_min;}
+  FIELDS.forEach(([k])=>{
+    const r=document.getElementById('sl_'+k);
+    if(r){r.value=P[k]; document.getElementById('v_'+k).textContent=(+P[k]).toFixed(3);}
+  });
+  const tg=document.getElementById('tg_telomerase_on');
+  if(tg) tg.checked=P.telomerase_on;
+  const fm=document.getElementById('tg_f_min_toggle');
+  if(fm) fm.checked=(P.f_min===0);
+  compute();
+}
+function compute(){
+  const res=runModel(P);
+  document.getElementById('nstar').textContent = res.n==null?'∞':res.n;
+  document.getElementById('cause').textContent = res.cause;
+  const st=standalone(P);
+  document.getElementById('percounter').textContent =
+    st.map(s=>s.name+': '+(isFinite(s.n)?s.n:'∞')).join(' · ');
+  const bars=document.getElementById('bars'); bars.innerHTML='';
+  const maxN=Math.max(1,res.n||1, ...st.map(s=>isFinite(s.n)?s.n:0));
+  st.forEach(s=>{
+    const row=document.createElement('div'); row.className='barrow';
+    row.innerHTML=`<span class="barlabel">${s.name}</span>`;
+    const b=document.createElement('div'); b.className='bar '+(isFinite(s.n)?'':'off');
+    b.style.width=Math.round((isFinite(s.n)?s.n:maxN)/maxN*60)+'%';
+    row.appendChild(b);
+    row.appendChild(document.createTextNode(isFinite(s.n)?s.n:'∞'));
+    bars.appendChild(row);
+  });
+  const row=document.createElement('div'); row.className='barrow';
+  row.innerHTML=`<span class="barlabel">any-of n*</span>`;
+  const b=document.createElement('div'); b.className='bar'; b.style.width=Math.round((res.n||maxN)/maxN*60)+'%';
+  row.appendChild(b); row.appendChild(document.createTextNode(res.n||'∞')); bars.appendChild(row);
+}
+compute();
+</script>
+</body>
+</html>
