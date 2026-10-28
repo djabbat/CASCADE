@@ -1,5 +1,7 @@
 # CASCADE — organismal-aging model (Lean + Rust)
 
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/djabbat/badge.svg)](https://hub.xerj.org/contributors/djabbat)
+
 **CASCADE** = *Counter-based Asymmetric Stem-Cell Aging: Division Counters & Entropy Export*.
 Модель организменного старения: асимметричное деление экспортирует энтропию/повреждения,
 счётчики делений (центриоль, теломеры, mtDNA, протеостаз, эпигенетический митотический)
